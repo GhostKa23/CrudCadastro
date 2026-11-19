@@ -1,0 +1,41 @@
+<main class="container">
+  <h1>Cadastro de Alunos</h1>
+
+  <form class="formulario" (ngSubmit)="onSubmit()">
+    <div class="campo">
+      <label for="nome">Nome do aluno:</label>
+      <input id="nome" name="nome" type="text" [(ngModel)]="nome" />
+    </div>
+
+    <div class="campo">
+      <label for="idade">Idade:</label>
+      <input id="idade" name="idade" type="number" [(ngModel)]="idade" />
+    </div>
+
+    <div class="campo">
+      <label for="curso">Curso:</label>
+      <input id="curso" name="curso" type="text" [(ngModel)]="curso" />
+    </div>
+
+    <div class="campo">
+      <label for="email">E-mail:</label>
+      <input id="email" name="email" type="email" [(ngModel)]="email" />
+    </div>
+
+    <div class="campo">
+      <label for="cidade">Cidade:</label>
+      <input id="cidade" name="cidade" type="text" [(ngModel)]="cidade" />
+    </div>
+
+    <button type="button" (click)="restaurarDados()">Restaurar Dados</button>
+  </form>
+
+  <section class="dados">
+    <h2>Dados do Aluno</h2>
+    <p>Nome: {{ nome }}</p>
+    <p>Idade: {{ idade }}</p>
+    <p>Curso: {{ curso }}</p>
+    <p>E-mail: {{ email }}</p>
+    <p>Cidade: {{ cidade }}</p>
+  </section>
+</main>

@@ -1,0 +1,9 @@
+.container { max-width: 480px; margin: 2rem auto; padding: 0 1rem; font-family: system-ui, sans-serif; }
+.formulario { display: flex; flex-direction: column; gap: 0.9rem; }
+.campo { display: flex; flex-direction: column; gap: 0.25rem; }
+label { font-weight: 600; }
+input { padding: 0.5rem; border: 1px solid #bbb; border-radius: 6px; font-size: 1rem; }
+button { padding: 0.6rem; border: 0; border-radius: 6px; background: #b01c2e; color: #fff; font-size: 1rem; cursor: pointer; }
+button:hover { background: #8e1624; }
+.dados { margin-top: 2rem; padding: 1rem; border: 1px solid #ddd; border-radius: 8px; background: #fafafa; }
+.dados p { margin: 0.3rem 0; }
