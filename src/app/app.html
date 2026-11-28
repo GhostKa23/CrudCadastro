@@ -1,7 +1,8 @@
 <main class="container">
   <h1>Cadastro de Alunos</h1>
+  <a class="atalho" href="#cadastro-gravado">Ver cadastro gravado</a>
 
-  <form class="formulario" (ngSubmit)="onSubmit()">
+  <form class="formulario" (ngSubmit)="gravarDados()">
     <div class="campo">
       <label for="nome">Nome do aluno:</label>
       <input id="nome" name="nome" type="text" [(ngModel)]="nome" />
@@ -27,7 +28,10 @@
       <input id="cidade" name="cidade" type="text" [(ngModel)]="cidade" />
     </div>
 
-    <button type="button" (click)="restaurarDados()">Restaurar Dados</button>
+    <div class="botoes">
+      <button type="submit">Gravar Dados</button>
+      <button type="button" class="secundario" (click)="restaurarDados()">Restaurar Dados</button>
+    </div>
   </form>
 
   <section class="dados">
@@ -37,5 +41,19 @@
     <p>Curso: {{ curso }}</p>
     <p>E-mail: {{ email }}</p>
     <p>Cidade: {{ cidade }}</p>
+  </section>
+
+  <section class="dados gravado" id="cadastro-gravado">
+    <h2>Cadastro Gravado</h2>
+    @if (alunoGravado) {
+      <p>Nome: {{ alunoGravado.nome }}</p>
+      <p>Idade: {{ alunoGravado.idade }}</p>
+      <p>Curso: {{ alunoGravado.curso }}</p>
+      <p>E-mail: {{ alunoGravado.email }}</p>
+      <p>Cidade: {{ alunoGravado.cidade }}</p>
+      <small>Restaurar Dados devolve o formulário a este cadastro.</small>
+    } @else {
+      <p>Nenhum cadastro gravado.</p>
+    }
   </section>
 </main>

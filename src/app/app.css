@@ -7,3 +7,11 @@ button { padding: 0.6rem; border: 0; border-radius: 6px; background: #b01c2e; co
 button:hover { background: #8e1624; }
 .dados { margin-top: 2rem; padding: 1rem; border: 1px solid #ddd; border-radius: 8px; background: #fafafa; }
 .dados p { margin: 0.3rem 0; }
+
+.atalho { display: inline-block; margin-bottom: 1rem; color: #b01c2e; font-weight: 600; }
+.botoes { display: flex; gap: 0.6rem; }
+.botoes button { flex: 1; }
+button.secundario { background: #555; }
+button.secundario:hover { background: #3a3a3a; }
+.gravado { border-color: #b01c2e; }
+.gravado small { color: #666; }

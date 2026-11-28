@@ -1,0 +1,216 @@
+diff --git a/README.md b/README.md
+index 2dc14fa..1624dd9 100644
+--- a/README.md
++++ b/README.md
+@@ -10,3 +10,8 @@ npm start
+ Abra http://localhost:4200
+ 
+ Testes: `npm test`. Respostas das perguntas do exercício: `RESPOSTAS.md`.
++
++## Funcionalidades
++- One-Way e Two-Way Binding (`[value]` / `[(ngModel)]`)
++- **Gravar Dados**: salva o cadastro (localStorage) e exibe em "Cadastro Gravado"
++- **Restaurar Dados**: volta o formulário ao cadastro gravado (ou ao inicial, se não houver)
+diff --git a/RESPOSTAS.md b/RESPOSTAS.md
+index 453476f..b323cee 100644
+--- a/RESPOSTAS.md
++++ b/RESPOSTAS.md
+@@ -24,3 +24,9 @@ Para refazer a Etapa 1, troque `[(ngModel)]="x"` por `[value]="x"` no `app.html`
+ Com `[(ngModel)]`, ao clicar em **Restaurar Dados** os campos voltam aos valores iniciais, pois a variável muda e o campo acompanha.
+ 
+ **Teste adicional (trocar por `[value]`):** após editar os campos e clicar em Restaurar Dados, os parágrafos (interpolação) voltam ao valor inicial, mas os campos podem continuar mostrando o que foi digitado. Isso ocorre porque as variáveis nunca mudaram com a digitação (continuavam com o valor inicial), então ao reatribuir o mesmo valor o Angular não detecta alteração e não reescreve o campo.
++
++## Etapa 4 — Gravar Dados (extra)
++
++Ao clicar em **Gravar Dados**, os valores atuais do formulário são copiados para a seção **Cadastro Gravado** (acessível pelo link "Ver cadastro gravado" no topo) e guardados no `localStorage`, então continuam na tela mesmo após recarregar a página. O cadastro gravado só é substituído ao gravar de novo.
++
++O botão **Restaurar Dados** devolve o formulário ao cadastro gravado, sem apagá-lo. Se ainda não houver cadastro gravado, volta aos valores iniciais.
+diff --git a/src/app/app.css b/src/app/app.css
+index d1fd0c0..4367520 100644
+--- a/src/app/app.css
++++ b/src/app/app.css
+@@ -7,3 +7,11 @@ button { padding: 0.6rem; border: 0; border-radius: 6px; background: #b01c2e; co
+ button:hover { background: #8e1624; }
+ .dados { margin-top: 2rem; padding: 1rem; border: 1px solid #ddd; border-radius: 8px; background: #fafafa; }
+ .dados p { margin: 0.3rem 0; }
++
++.atalho { display: inline-block; margin-bottom: 1rem; color: #b01c2e; font-weight: 600; }
++.botoes { display: flex; gap: 0.6rem; }
++.botoes button { flex: 1; }
++button.secundario { background: #555; }
++button.secundario:hover { background: #3a3a3a; }
++.gravado { border-color: #b01c2e; }
++.gravado small { color: #666; }
+diff --git a/src/app/app.html b/src/app/app.html
+index accbccc..1872e32 100644
+--- a/src/app/app.html
++++ b/src/app/app.html
+@@ -1,7 +1,8 @@
+ <main class="container">
+   <h1>Cadastro de Alunos</h1>
++  <a class="atalho" href="#cadastro-gravado">Ver cadastro gravado</a>
+ 
+-  <form class="formulario" (ngSubmit)="onSubmit()">
++  <form class="formulario" (ngSubmit)="gravarDados()">
+     <div class="campo">
+       <label for="nome">Nome do aluno:</label>
+       <input id="nome" name="nome" type="text" [(ngModel)]="nome" />
+@@ -27,7 +28,10 @@
+       <input id="cidade" name="cidade" type="text" [(ngModel)]="cidade" />
+     </div>
+ 
+-    <button type="button" (click)="restaurarDados()">Restaurar Dados</button>
++    <div class="botoes">
++      <button type="submit">Gravar Dados</button>
++      <button type="button" class="secundario" (click)="restaurarDados()">Restaurar Dados</button>
++    </div>
+   </form>
+ 
+   <section class="dados">
+@@ -38,4 +42,18 @@
+     <p>E-mail: {{ email }}</p>
+     <p>Cidade: {{ cidade }}</p>
+   </section>
++
++  <section class="dados gravado" id="cadastro-gravado">
++    <h2>Cadastro Gravado</h2>
++    @if (alunoGravado) {
++      <p>Nome: {{ alunoGravado.nome }}</p>
++      <p>Idade: {{ alunoGravado.idade }}</p>
++      <p>Curso: {{ alunoGravado.curso }}</p>
++      <p>E-mail: {{ alunoGravado.email }}</p>
++      <p>Cidade: {{ alunoGravado.cidade }}</p>
++      <small>Restaurar Dados devolve o formulário a este cadastro.</small>
++    } @else {
++      <p>Nenhum cadastro gravado.</p>
++    }
++  </section>
+ </main>
+diff --git a/src/app/app.spec.ts b/src/app/app.spec.ts
+index bb2ed87..1a2a417 100644
+--- a/src/app/app.spec.ts
++++ b/src/app/app.spec.ts
+@@ -3,6 +3,7 @@ import { App } from './app';
+ 
+ describe('App', () => {
+   beforeEach(async () => {
++    localStorage.clear();
+     await TestBed.configureTestingModule({ imports: [App] }).compileComponents();
+   });
+ 
+@@ -19,4 +20,35 @@ describe('App', () => {
+     expect(app.nome).toBe('Maria Silva');
+     expect(app.idade).toBe(18);
+   });
++
++  it('gravarDados deve guardar o cadastro e mantê-lo após recriar o app', () => {
++    const app = TestBed.createComponent(App).componentInstance;
++    app.nome = 'João Oliveira';
++    app.gravarDados();
++    expect(app.alunoGravado?.nome).toBe('João Oliveira');
++
++    const outro = TestBed.createComponent(App).componentInstance;
++    expect(outro.alunoGravado?.nome).toBe('João Oliveira');
++  });
++
++  it('restaurarDados deve voltar ao cadastro gravado sem apagá-lo', () => {
++    const app = TestBed.createComponent(App).componentInstance;
++    app.nome = 'João Oliveira';
++    app.idade = 20;
++    app.gravarDados();
++    app.nome = 'Outro Nome';
++    app.idade = 30;
++    app.restaurarDados();
++    expect(app.nome).toBe('João Oliveira');
++    expect(app.idade).toBe(20);
++    expect(app.alunoGravado?.nome).toBe('João Oliveira');
++    expect(localStorage.getItem('cadastroAluno')).not.toBeNull();
++  });
++
++  it('deve mostrar o cadastro gravado na tela', () => {
++    const fixture = TestBed.createComponent(App);
++    fixture.componentInstance.gravarDados();
++    fixture.detectChanges();
++    expect(fixture.nativeElement.querySelector('#cadastro-gravado').textContent).toContain('Maria Silva');
++  });
+ });
+diff --git a/src/app/app.ts b/src/app/app.ts
+index 5efdfb9..b345e05 100644
+--- a/src/app/app.ts
++++ b/src/app/app.ts
+@@ -1,6 +1,16 @@
+ import { Component } from '@angular/core';
+ import { FormsModule } from '@angular/forms';
+ 
++interface Aluno {
++  nome: string;
++  idade: number;
++  curso: string;
++  email: string;
++  cidade: string;
++}
++
++const CHAVE_STORAGE = 'cadastroAluno';
++
+ @Component({
+   selector: 'app-root',
+   imports: [FormsModule],
+@@ -11,17 +21,49 @@ export class App {
+   nome: string = 'Maria Silva';
+   idade: number = 18;
+   curso: string = 'Informática';
+-  email: string = 'Maria@email.com';
++  email: string = 'maria@email.com';
+   cidade: string = 'São Paulo';
+ 
++  // Cadastro gravado: continua na tela (e após recarregar); gravar de novo sobrescreve
++  alunoGravado: Aluno | null = this.lerGravado();
++
++  gravarDados(): void {
++    this.alunoGravado = {
++      nome: this.nome,
++      idade: this.idade,
++      curso: this.curso,
++      email: this.email,
++      cidade: this.cidade,
++    };
++    try {
++      localStorage.setItem(CHAVE_STORAGE, JSON.stringify(this.alunoGravado));
++    } catch {
++      // armazenamento indisponível: o cadastro fica salvo apenas enquanto a página estiver aberta
++    }
++  }
++
++  private lerGravado(): Aluno | null {
++    try {
++      const salvo = localStorage.getItem(CHAVE_STORAGE);
++      return salvo ? (JSON.parse(salvo) as Aluno) : null;
++    } catch {
++      return null;
++    }
++  }
++
+   restaurarDados(): void {
+-    this.nome = 'Maria Silva';
+-    this.idade = 18;
+-    this.curso = 'Informática';
+-    this.email = 'Maria@email.com';
+-    this.cidade = 'São Paulo';
++    // Se há cadastro gravado, o formulário volta para ele; senão, para os valores iniciais
++    const base: Aluno = this.alunoGravado ?? {
++      nome: 'Maria Silva',
++      idade: 18,
++      curso: 'Informática',
++      email: 'maria@email.com',
++      cidade: 'São Paulo',
++    };
++    this.nome = base.nome;
++    this.idade = base.idade;
++    this.curso = base.curso;
++    this.email = base.email;
++    this.cidade = base.cidade;
+   }
+-  onSubmit() {
+-  console.log('Formulário enviado sem recarregar a página!');
+-}
+ }
